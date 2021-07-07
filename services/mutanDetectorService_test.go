@@ -113,9 +113,16 @@ func TestDnaAnalyzer(t *testing.T) {
 	}
 }
 
-func BenchmarkDnaAnalyzer(b *testing.B) {
+func BenchmarkDnaAnalyzerMutant(b *testing.B) {
 	for n := 0; n < b.N; n++ {
 		dna := models.NewDna([]string{"ATGCGA", "CAGTGC", "TTATGT", "AGAAGG", "CCCCTA", "TCACTG",},)
+		_, _ = NewMutantDetectorService(dna)
+	}
+}
+
+func BenchmarkDnaAnalyzerNonMutant(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		dna := models.NewDna([]string{"ATGCGA", "CAGTGC", "TTATTT", "AGACGG", "GCGTCA", "TCACTG",},)
 		_, _ = NewMutantDetectorService(dna)
 	}
 }

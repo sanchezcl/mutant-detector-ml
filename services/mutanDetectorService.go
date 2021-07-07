@@ -71,19 +71,20 @@ func (mds *MutantDetectorService) getDiagonals() ([]string, error) {
 
 func (mds *MutantDetectorService) AnalyzeDna() (bool, error) {
 	var m [][]string
-	mV, err := mds.getVerticals()
-	if err != nil {
-		return false, err
+	dataGetters := []func()([]string, error){
+		mds.getVerticals,
+		mds.getHorizontals,
+		mds.getDiagonals,
 	}
-	mH, err := mds.getHorizontals()
-	if err != nil {
-		return false, err
+
+	for _, getter := range dataGetters {
+		r, err := getter()
+		if err != nil {
+			return false, err
+		}
+		m = append(m, r)
 	}
-	mD, err := mds.getDiagonals()
-	if err != nil {
-		return false, err
-	}
-	m = append(m, mV, mH, mD)
+
 	var result = 0
 	for _, m := range m {
 		str := strings.Join(m, "|")
