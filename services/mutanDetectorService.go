@@ -3,7 +3,9 @@ package services
 import (
 	"fmt"
 	"mutantDetector/models"
+	"mutantDetector/repositories"
 	"mutantDetector/validators"
+	"reflect"
 	"regexp"
 	"strings"
 )
@@ -13,13 +15,16 @@ const (
 	minMatchMutantCount = 2
 )
 
-var regexPattern = fmt.Sprintf("A{%[1]d}|T{%[1]d}|C{%[1]d}|G{%[1]d}", charCount)
+var (
+	regexPattern = fmt.Sprintf("A{%[1]d}|T{%[1]d}|C{%[1]d}|G{%[1]d}", charCount)
+)
 
 type MutantDetectorService struct {
 	dna *models.Dna
+	dnaRepo repositories.DnaRepositoryInterface
 }
 
-func NewMutantDetectorService(dna *models.Dna) (*MutantDetectorService, error) {
+func NewMutantDetectorService(dna *models.Dna, repo repositories.DnaRepositoryInterface) (*MutantDetectorService, error) {
 	dnaVal := validators.NewDnaValidator(dna)
 	_, err := dnaVal.Validate()
 	if err != nil {
@@ -27,6 +32,7 @@ func NewMutantDetectorService(dna *models.Dna) (*MutantDetectorService, error) {
 	}
 	return &MutantDetectorService{
 		dna: dna,
+		dnaRepo: repo,
 	}, nil
 }
 
@@ -71,6 +77,16 @@ func (mds *MutantDetectorService) getDiagonals() ([]string, error) {
 
 func (mds *MutantDetectorService) AnalyzeDna() (bool, error) {
 	var m [][]string
+
+	resDna, err := mds.findDnaByHash()
+	if err != nil {
+		return false , err
+	}
+
+	if !reflect.DeepEqual(models.Dna{}, *resDna) {
+		return resDna.IsMutant, nil
+	}
+
 	dataGetters := []func()([]string, error){
 		mds.getVerticals,
 		mds.getHorizontals,
@@ -94,8 +110,24 @@ func (mds *MutantDetectorService) AnalyzeDna() (bool, error) {
 		}
 	}
 
-	if result < minMatchMutantCount {
-		return false, nil
+	if result >= minMatchMutantCount {
+		mds.dna.IsMutant = true
+	} else {
+		resDna.IsMutant = false
 	}
-	return true, nil
+
+	mds.dna, err = mds.persistResults()
+	if err != nil {
+		return false, err
+	}
+
+	return mds.dna.IsMutant, nil
+}
+
+func (mds *MutantDetectorService) findDnaByHash() (*models.Dna, error) {
+	return mds.dnaRepo.FindByHash(mds.dna)
+}
+
+func (mds *MutantDetectorService) persistResults() (*models.Dna,error) {
+	return mds.dnaRepo.Create(mds.dna)
 }

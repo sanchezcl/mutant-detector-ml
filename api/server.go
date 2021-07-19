@@ -1,17 +1,18 @@
 package api
 
 import (
-	"log"
 	"mutantDetector/api/routes"
 	"mutantDetector/config"
+	"mutantDetector/database"
 )
 
 func NewServer() {
 	e := routes.NewRouter()
-	c, err := config.NewConfig()
-	if err != nil {
-		log.Fatal("Could not load configs")
-	}
+	c := config.NewConfig()
+
+	database.NewDatabaseConn()
+	database.Migrate()
+
 	e.Debug = c.AppDebug
 	e.Logger.Fatal(e.Start(c.GetAddress()))
 }

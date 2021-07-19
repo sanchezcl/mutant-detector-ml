@@ -19,5 +19,5 @@ func (mdr *MutantDetectorRequest) Validate() error {
 }
 
 func (mdr *MutantDetectorRequest) ToModel() *models.Dna {
-	return &models.Dna{M: mdr.Dna}
+	return models.NewDna(mdr.Dna)
 }
