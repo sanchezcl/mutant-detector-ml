@@ -24,7 +24,7 @@ func NewDna(m []string) *Dna {
 	return dna
 }
 
-func (dna *Dna) parseDnaHash() string{
+func (dna *Dna) parseDnaHash() string {
 	str := strings.Join(dna.M, "")
 	h := sha1.New()
 	h.Write([]byte(str))
