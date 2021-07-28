@@ -2,3 +2,5 @@
 tmp/
 
 profile.cov
+
+cover.out
