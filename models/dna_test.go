@@ -6,11 +6,11 @@ import (
 )
 
 func TestNewDna(t *testing.T) {
-	model := NewDna([]string{"1TGCGA", "*AGTGC", "-TATGT", "AGAAGG", "CCCCTA", "TCACTG",})
+	model := NewDna([]string{"ATGCGA", "CAGTGC", "TTATGT", "AGAAGG", "CCCCTA", "TCACTG",})
 	require.IsType(t, &Dna{}, model)
 }
 
-func TestGetHash(t *testing.T) {
+func TestParseDnaHash(t *testing.T) {
 	tests := []struct {
 		input    []string
 		expected string

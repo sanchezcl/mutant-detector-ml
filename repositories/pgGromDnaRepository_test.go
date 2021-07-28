@@ -48,7 +48,7 @@ func TestNewPgDnaRepository(t *testing.T) {
 }
 
 func TestPgDnaRepository_Create(t *testing.T) {
-	t.Skip("Skipped because a bug with gorm and go-sqlmock or i'm doing something wrong and i can't see it")
+	//t.Skip("Skipped because a bug with gorm and go-sqlmock or i'm doing something wrong and i can't see it")
 
 	dnaModel := models.NewDna([]string{"1TGCGA", "*AGTGC", "-TATGT", "AGAAGG", "CCCCTA", "TCACTG",})
 	dnaModel.IsMutant = true
@@ -58,8 +58,8 @@ func TestPgDnaRepository_Create(t *testing.T) {
 
 	const sqlInsert = `INSERT INTO "dnas" ("id","created_at","updated_at","deleted_at","hash","is_mutant") VALUES ($1,$2,$3,$4,$5,$6)`
 
-	testDb.Mock.ExpectBegin()
 	testDb.Mock.MatchExpectationsInOrder(false)
+	testDb.Mock.ExpectBegin()
 	testDb.Mock.ExpectQuery(sqlInsert).
 		WithArgs(
 			sqlmock.AnyArg(), //uuid

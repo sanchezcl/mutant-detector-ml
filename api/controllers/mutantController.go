@@ -46,5 +46,14 @@ func MutantDetector(c echo.Context) error {
 }
 
 func MutantStats(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]string{"data": "ok"})
+	statRepo := repositories.NewPgGormStatsRepository(database.NewDatabaseConn())
+	mss, err := services.NewMutantStatsService(statRepo)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+	stats, err := mss.GetStats()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, stats)
 }
